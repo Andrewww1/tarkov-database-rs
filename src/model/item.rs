@@ -21,7 +21,7 @@ pub struct ItemIndex {
     pub total: i64,
     #[serde(with = "ts_seconds")]
     pub modified: DateTime<Utc>,
-    pub kinds: HashMap<String, KindProperties>,
+    pub kinds: HashMap<Kind, KindProperties>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -67,7 +67,7 @@ impl Client {
 
     pub async fn get_items_by_kind<T: Item + DeserializeOwned>(
         &self,
-        kind: &str,
+        kind: &Kind,
         limit: i64,
         offset: i64,
     ) -> Result<ItemResult<T>> {
