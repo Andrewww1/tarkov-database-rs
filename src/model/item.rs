@@ -36,30 +36,7 @@ pub struct KindProperties {
 #[serde(rename_all = "camelCase")]
 pub struct ItemResult<T: Item> {
     pub total: i64,
-<<<<<<< Updated upstream
-    pub items: Vec<Item>,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Item {
-    #[serde(rename = "_id")]
-    pub id: String,
-    pub name: String,
-    pub short_name: String,
-    pub description: String,
-    pub price: i64,
-    pub weight: f64,
-    pub max_stack: i64,
-    pub rarity: String,
-    pub grid: Grid,
-    #[serde(with = "ts_seconds", rename = "_modified")]
-    pub modified: DateTime<Utc>,
-    #[serde(rename = "_kind")]
-    pub kind: String,
-=======
     pub items: Vec<T>,
->>>>>>> Stashed changes
 }
 
 #[derive(Debug, Deserialize)]
@@ -96,14 +73,10 @@ impl Client {
     ) -> Result<ItemResult<T>> {
         let path: PathAndQuery = format!(
             "{}/{}?limit={}&offset={}",
-<<<<<<< Updated upstream
-            ENDPOINT_ITEM, kind, limit, offset
-=======
             ENDPOINT_ITEM,
             kind.to_path(),
             limit,
             offset
->>>>>>> Stashed changes
         )
         .parse()
         .unwrap();
