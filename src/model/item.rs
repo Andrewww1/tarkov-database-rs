@@ -1,10 +1,11 @@
+use super::{item_common::CommonItem, kind::Kind};
 use crate::{client::Client, Result};
 
 use std::collections::HashMap;
 
 use awc::http::PathAndQuery;
 use chrono::{serde::ts_seconds, DateTime, Utc};
-use serde::Deserialize;
+use serde::{de::DeserializeOwned, Deserialize};
 
 const ENDPOINT_ITEM: &str = "/item";
 
@@ -33,8 +34,9 @@ pub struct KindProperties {
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ItemResult {
+pub struct ItemResult<T: Item> {
     pub total: i64,
+<<<<<<< Updated upstream
     pub items: Vec<Item>,
 }
 
@@ -55,6 +57,9 @@ pub struct Item {
     pub modified: DateTime<Utc>,
     #[serde(rename = "_kind")]
     pub kind: String,
+=======
+    pub items: Vec<T>,
+>>>>>>> Stashed changes
 }
 
 #[derive(Debug, Deserialize)]
@@ -74,6 +79,8 @@ pub struct RGBA {
     pub a: u64,
 }
 
+pub trait Item {}
+
 impl Client {
     pub async fn get_item_index(&self) -> Result<ItemIndex> {
         let resp = self.get_json(ENDPOINT_ITEM.parse().unwrap()).await?;
@@ -81,15 +88,22 @@ impl Client {
         Ok(resp)
     }
 
-    pub async fn get_items_by_kind(
+    pub async fn get_items_by_kind<T: Item + DeserializeOwned>(
         &self,
         kind: &str,
         limit: i64,
         offset: i64,
-    ) -> Result<ItemResult> {
+    ) -> Result<ItemResult<T>> {
         let path: PathAndQuery = format!(
             "{}/{}?limit={}&offset={}",
+<<<<<<< Updated upstream
             ENDPOINT_ITEM, kind, limit, offset
+=======
+            ENDPOINT_ITEM,
+            kind.to_path(),
+            limit,
+            offset
+>>>>>>> Stashed changes
         )
         .parse()
         .unwrap();
@@ -99,12 +113,12 @@ impl Client {
         Ok(resp)
     }
 
-    pub async fn get_all_items(&self) -> Result<Vec<Item>> {
+    pub async fn get_all_items(&self) -> Result<Vec<CommonItem>> {
         let index = self.get_item_index().await?;
 
         let limit = Self::MAX_PAGE_LIMIT;
 
-        let mut items: Vec<Item> = Vec::with_capacity(index.total as usize);
+        let mut items: Vec<CommonItem> = Vec::with_capacity(index.total as usize);
         for (k, p) in index.kinds.into_iter() {
             let pages = if (p.count % limit) != 0 {
                 (p.count / limit) + 1
